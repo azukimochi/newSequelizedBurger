@@ -1,0 +1,70 @@
+<h1>Order That Burger</h1>
+<div id="imageDiv">
+    <img src="/assets/img/burger.png">
+</div>
+<div id="unEatenContainer">
+    <h2 class="headers">On Your Table (from A-Z)</h2>
+    {{#each burgers}}
+    <div class="existingBurger">
+        <p>
+            {{#unless devoured}}{{this.id}}. {{this.burger_name}}
+            <form id="addCustomer">
+                <textarea type="text" placeholder="Customer's Name" name="customer"></textarea>
+                <button data-burgerid="{{this.id}}" class="eatBurger">Devour!</button>
+            </form>
+            {{/unless}}
+        </p>
+    </div>
+    {{/each}}
+    <h4 class="headers">Add a New Burger</h4>
+    <form id="addBurger" class="button-size">
+        <textarea type="text" placeholder="Burger name" name="burger"></textarea>
+        <button id="addBurgerBtn" type="submit">Add the Burger</button>
+    </form>
+</div>
+
+<div id="eatenContainer">
+    <h3 class="headers">In your Stomach (from A-Z)</h3>
+    {{#each burgers}}
+    <div class="inexistentBurger">
+        <p>
+            {{#if devoured}}{{this.id}}. {{this.burger_name}} (eaten by {{this.Customer.name}}) {{/if}}
+        </p>
+    </div>
+    {{/each}}
+</div>
+
+
+<script type="text/javascript">
+
+    $("#addBurgerBtn").on("click", function (event) {
+        event.preventDefault();
+        console.log("A burger is being posted!");
+        var newBurger = {
+            burger_name: $("#addBurger [name=burger]").val().trim()
+        };
+        $.ajax("/burgers", {
+            type: "POST",
+            data: newBurger
+        }).then(function () {
+            location.reload();
+        });
+    });
+
+    $(".eatBurger").on("click", function (event) {
+        event.preventDefault();
+        var idObj = {
+            id: $(this).data("burgerid"),
+            customer: $("#addCustomer [name=customer]").val().trim()
+        };
+
+        console.log(`${idObj.customer} is eating the burger whose ID is ${idObj.id}`);
+        $.ajax("/devour", {
+            type: "POST",
+            data: idObj
+        }).then(function () {
+            location.reload();
+        });
+    });
+
+</script>
